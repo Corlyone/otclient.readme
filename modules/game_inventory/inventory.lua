@@ -125,6 +125,7 @@ local function inventoryEvent(player, slot, item, oldItem)
         end
     end
     ItemsDatabase.setTier(slotPanel.item, item)
+	ItemsDatabase.setRarityItem(slotPanel.item, item, nil, slot)
 end
 
 local function onSoulChange(localPlayer, soul)

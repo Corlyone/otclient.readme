@@ -24,24 +24,44 @@ local function getColorForValue(value)
     end
 end
 
-function ItemsDatabase.setRarityItem(widget, item, style)
-    if not g_game.getFeature(GameColorizedLootValue) then
+local getSlotPanelBySlot = {
+    [InventorySlotHead] = function(ui) return ui.helmet, ui.helmet.helmet end,
+    [InventorySlotNeck] = function(ui) return ui.amulet, ui.amulet.amulet end,
+    [InventorySlotBack] = function(ui) return ui.backpack, ui.backpack.backpack end,
+    [InventorySlotBody] = function(ui) return ui.armor, ui.armor.armor end,
+    [InventorySlotRight] = function(ui) return ui.shield, ui.shield.shield end,
+    [InventorySlotLeft] = function(ui) return ui.sword, ui.sword.sword end,
+    [InventorySlotLeg] = function(ui) return ui.legs, ui.legs.legs end,
+    [InventorySlotFeet] = function(ui) return ui.boots, ui.boots.boots end,
+    [InventorySlotFinger] = function(ui) return ui.ring, ui.ring.ring end,
+    [InventorySlotAmmo] = function(ui) return ui.tools, ui.tools.tools end
+}
+
+function ItemsDatabase.setRarityItem(widget, item, style, slot)
+    if not g_game.getFeature(GameColorizedLootValue) or not widget then
+        return
+    end
+	
+	if not widget then
+        return
+    end
+	
+	local getSlotInfo = getSlotPanelBySlot[slot]
+
+    if not item and getSlotInfo then
+		local imageBitsPath = "/images/game/slots/slots_bits/"
+        widget:setImageSource(imageBitsPath .. slot)
         return
     end
 
-    if not widget then
-        return
+    local price = type(item) == "number" and item or (item and item:getMeanPrice()) or 0
+    local itemRarity = getColorForValue(price)
+    local imagePath = "/images/ui/item"
+    if itemRarity and itemRarity ~= "white" then -- necessary in setColorLootMessage
+        imagePath = "/images/ui/rarity_" .. itemRarity
     end
 
-    if item then
-        local price = type(item) == "number" and item or (item and item:getMeanPrice()) or 0
-        local itemRarity = getColorForValue(price)
-        local imagePath = '/images/ui/item'
-        if itemRarity and itemRarity ~= "white" then -- necessary in setColorLootMessage
-            imagePath = '/images/ui/rarity_' .. itemRarity
-        end
-        widget:setImageSource(imagePath)
-    end
+    widget:setImageSource(imagePath)
 
     if style then
         widget:setStyle(style)
